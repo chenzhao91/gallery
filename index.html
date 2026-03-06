@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gallery - Landscape Photography</title>
+    <title>Gallery - Chen Zhao Photography</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: #0a0a0a;
@@ -39,108 +35,60 @@
             letter-spacing: 0.1em;
         }
 
-        .gallery {
-            max-width: 1400px;
+        .trips {
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            columns: 1;
-            column-gap: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 24px;
         }
 
-        @media (min-width: 768px) {
-            .gallery { columns: 2; }
+        @media (max-width: 560px) {
+            .trips { grid-template-columns: 1fr; }
         }
 
-        @media (min-width: 1200px) {
-            .gallery { columns: 3; }
-        }
-
-        .gallery-item {
-            break-inside: avoid;
-            margin-bottom: 16px;
-            cursor: pointer;
-            overflow: hidden;
-            border-radius: 4px;
+        .trip-card {
             position: relative;
-        }
-
-        .gallery-item img {
-            width: 100%;
+            overflow: hidden;
+            border-radius: 6px;
+            aspect-ratio: 3 / 2;
+            cursor: pointer;
+            text-decoration: none;
             display: block;
-            transition: transform 0.4s ease, filter 0.4s ease;
         }
 
-        .gallery-item:hover img {
-            transform: scale(1.02);
-            filter: brightness(1.1);
-        }
-
-        /* Lightbox */
-        .lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        .trip-card img {
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            cursor: zoom-out;
+            object-fit: cover;
+            transition: transform 0.5s ease, filter 0.4s ease;
         }
 
-        .lightbox.active {
-            display: flex;
+        .trip-card:hover img {
+            transform: scale(1.05);
+            filter: brightness(1.15);
         }
 
-        .lightbox img {
-            max-width: 95vw;
-            max-height: 95vh;
-            object-fit: contain;
+        .trip-card .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px 20px 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
         }
 
-        .lightbox-nav {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
+        .trip-card .overlay h2 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
             color: #fff;
-            font-size: 2rem;
-            padding: 20px 16px;
-            cursor: pointer;
-            z-index: 1001;
-            transition: background 0.2s;
         }
 
-        .lightbox-nav:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-
-        .lightbox-prev { left: 10px; }
-        .lightbox-next { right: 10px; }
-
-        .lightbox-close {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 2rem;
-            cursor: pointer;
-            z-index: 1001;
-        }
-
-        .loading-placeholder {
-            background: #1a1a1a;
-            min-height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #444;
-            font-size: 0.9rem;
+        .trip-card .overlay span {
+            font-size: 0.85rem;
+            color: #aaa;
         }
 
         footer {
@@ -154,78 +102,42 @@
 <body>
     <header>
         <h1>Gallery</h1>
-        <p>Landscape Photography</p>
+        <p>Landscape Photography by Chen Zhao</p>
     </header>
 
-    <div class="gallery" id="gallery"></div>
+    <div class="trips" id="trips"></div>
 
-    <div class="lightbox" id="lightbox">
-        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-        <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">&lsaquo;</button>
-        <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)">&rsaquo;</button>
-        <img id="lightbox-img" src="" alt="">
-    </div>
-
-    <footer>
-        &copy; Chen Zhao Photography
-    </footer>
+    <footer>&copy; Chen Zhao Photography</footer>
 
     <script>
         const R2_BASE = 'https://pub-54cde7e641974c65b28dfbd298c00df6.r2.dev';
 
-        const photos = [
-            'DSC08121.jpg'
+        const trips = [
+            {
+                id: 'west-coast-national-parks',
+                title: 'West Coast National Parks',
+                date: 'March 2025',
+                cover: 'DSC02710-2.jpg',
+                photos: ['DSC02710-2.jpg', 'DSC05883-2.jpg', 'DSC06000-2.jpg', 'DSC08121.jpg']
+            }
         ];
 
-        let currentIndex = 0;
-
         function init() {
-            const gallery = document.getElementById('gallery');
-            photos.forEach((photo, index) => {
-                const item = document.createElement('div');
-                item.className = 'gallery-item';
-
-                const img = document.createElement('img');
-                img.src = `${R2_BASE}/${photo}`;
-                img.alt = photo;
-                img.loading = 'lazy';
-                img.onclick = () => openLightbox(index);
-
-                item.appendChild(img);
-                gallery.appendChild(item);
+            const container = document.getElementById('trips');
+            trips.forEach(trip => {
+                const a = document.createElement('a');
+                a.className = 'trip-card';
+                a.href = `trip.html?id=${trip.id}`;
+                a.innerHTML = `
+                    <img src="${R2_BASE}/${trip.id}/${trip.cover}" alt="${trip.title}" loading="lazy">
+                    <div class="overlay">
+                        <h2>${trip.title}</h2>
+                        <span>${trip.date} &middot; ${trip.photos.length} photos</span>
+                    </div>
+                `;
+                container.appendChild(a);
             });
         }
-
-        function openLightbox(index) {
-            currentIndex = index;
-            const lightbox = document.getElementById('lightbox');
-            const img = document.getElementById('lightbox-img');
-            img.src = `${R2_BASE}/${photos[currentIndex]}`;
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        function navLightbox(direction) {
-            event.stopPropagation();
-            currentIndex = (currentIndex + direction + photos.length) % photos.length;
-            document.getElementById('lightbox-img').src = `${R2_BASE}/${photos[currentIndex]}`;
-        }
-
-        document.getElementById('lightbox').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) closeLightbox();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (!document.getElementById('lightbox').classList.contains('active')) return;
-            if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowLeft') navLightbox(-1);
-            if (e.key === 'ArrowRight') navLightbox(1);
-        });
 
         init();
     </script>
