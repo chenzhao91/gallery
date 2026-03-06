@@ -126,6 +126,27 @@
             z-index: 1001;
         }
 
+        .pagination {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .pagination button {
+            background: none;
+            border: 1px solid #333;
+            color: #888;
+            padding: 8px 16px;
+            margin: 0 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover { border-color: #888; color: #fff; }
+        .pagination button.active { border-color: #fff; color: #fff; }
+        .pagination button:disabled { opacity: 0.3; cursor: default; }
+
         footer {
             text-align: center;
             padding: 60px 20px;
@@ -142,6 +163,8 @@
     </header>
 
     <div class="gallery" id="gallery"></div>
+
+    <div class="pagination" id="pagination"></div>
 
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
@@ -172,7 +195,9 @@
         const tripId = params.get('id');
         const trip = trips[tripId];
 
+        const PER_PAGE = 6;
         let currentIndex = 0;
+        let currentPage = 1;
 
         function init() {
             if (!trip) {
@@ -184,18 +209,67 @@
             document.getElementById('trip-title').textContent = trip.title;
             document.getElementById('trip-info').textContent = `${trip.date} · ${trip.photos.length} photos`;
 
+            const pageParam = parseInt(params.get('page')) || 1;
+            currentPage = pageParam;
+            renderPage(currentPage);
+            renderPagination();
+        }
+
+        function renderPage(page) {
             const gallery = document.getElementById('gallery');
-            trip.photos.forEach((photo, index) => {
+            gallery.innerHTML = '';
+            const start = (page - 1) * PER_PAGE;
+            const end = Math.min(start + PER_PAGE, trip.photos.length);
+            const pagePhotos = trip.photos.slice(start, end);
+
+            pagePhotos.forEach((photo, i) => {
                 const item = document.createElement('div');
                 item.className = 'gallery-item';
                 const img = document.createElement('img');
                 img.src = `${R2_BASE}/${tripId}/${photo}`;
                 img.alt = photo;
                 img.loading = 'lazy';
-                img.onclick = () => openLightbox(index);
+                img.onclick = () => openLightbox(start + i);
                 item.appendChild(img);
                 gallery.appendChild(item);
             });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(trip.photos.length / PER_PAGE);
+            if (totalPages <= 1) return;
+
+            const container = document.getElementById('pagination');
+            container.innerHTML = '';
+
+            const prev = document.createElement('button');
+            prev.textContent = '\u2039 Prev';
+            prev.disabled = currentPage === 1;
+            prev.onclick = () => goToPage(currentPage - 1);
+            container.appendChild(prev);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                if (i === currentPage) btn.className = 'active';
+                btn.onclick = () => goToPage(i);
+                container.appendChild(btn);
+            }
+
+            const next = document.createElement('button');
+            next.textContent = 'Next \u203A';
+            next.disabled = currentPage === totalPages;
+            next.onclick = () => goToPage(currentPage + 1);
+            container.appendChild(next);
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderPage(page);
+            renderPagination();
+            history.replaceState(null, '', `?id=${tripId}&page=${page}`);
         }
 
         function openLightbox(index) {
