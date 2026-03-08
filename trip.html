@@ -66,6 +66,12 @@
             position: relative;
         }
 
+        .gallery-item.portrait {
+            width: 65%;
+            margin: 0 auto;
+            background: none;
+        }
+
         .gallery-item img {
             width: 100%;
             display: block;
@@ -259,7 +265,8 @@
 
             const rest = [];
             for (let i = 1; i < photos.length; i++) {
-                rest.push({ idx: i, h: 1 / (ratios[i] || 1.5) });
+                const r = ratios[i] || 1.5;
+                rest.push({ idx: i, h: r < 1 ? (1 / r) * 0.65 : (1 / r) });
             }
 
             // Sort by height descending (tall portraits first) for better bin packing
@@ -270,7 +277,8 @@
             const colItems = Array.from({ length: colCount }, () => []);
 
             // Place cover in col 0
-            colHeights[0] = 1 / (ratios[0] || 1.5);
+            const r0 = ratios[0] || 1.5;
+            colHeights[0] = r0 < 1 ? (1 / r0) * 0.65 : (1 / r0);
             colItems[0].push(0);
 
             rest.forEach(item => {
@@ -320,8 +328,9 @@
                     if (colHeights[c] < colHeights[minCol]) minCol = c;
                 }
 
+                const isPortrait = ratio < 1;
                 const item = document.createElement('div');
-                item.className = 'gallery-item';
+                item.className = 'gallery-item' + (isPortrait ? ' portrait' : '');
                 item.style.aspectRatio = ratio;
 
                 const img = document.createElement('img');
@@ -332,7 +341,8 @@
                 item.appendChild(img);
                 cols[minCol].appendChild(item);
 
-                colHeights[minCol] += 1 / ratio;
+                // Portrait at 65% width: effective height = (1/ratio) * 0.65
+                colHeights[minCol] += isPortrait ? (1 / ratio) * 0.65 : (1 / ratio);
             });
 
             // Lazy load with IntersectionObserver
