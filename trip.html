@@ -151,6 +151,38 @@
             z-index: 1001;
         }
 
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 40px 20px 20px;
+        }
+
+        .pagination button {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #aaa;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover { background: #2a2a2a; color: #fff; border-color: #555; }
+        .pagination button:disabled { opacity: 0.3; cursor: default; }
+        .pagination button:disabled:hover { background: #1a1a1a; color: #aaa; border-color: #333; }
+
+        .pagination .page-info {
+            color: #666;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            min-width: 80px;
+            text-align: center;
+        }
+
         footer {
             text-align: center;
             padding: 60px 20px;
@@ -167,6 +199,12 @@
     </header>
 
     <div class="gallery" id="gallery"></div>
+
+    <div class="pagination" id="pagination">
+        <button onclick="changePage(-1)" id="prev-btn">&lsaquo; Prev</button>
+        <span class="page-info" id="page-info"></span>
+        <button onclick="changePage(1)" id="next-btn">Next &rsaquo;</button>
+    </div>
 
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
@@ -230,6 +268,9 @@
         const trip = trips[tripId];
         let currentIndex = 0;
         let displayOrder = [];
+        const PER_PAGE = 5;
+        let currentPage = 1;
+        let totalPages = 1;
 
         function init() {
             if (!trip) {
@@ -249,14 +290,19 @@
                 [displayOrder[i], displayOrder[j]] = [displayOrder[j], displayOrder[i]];
             }
 
-            buildGallery();
+            totalPages = Math.ceil(displayOrder.length / PER_PAGE);
+            renderPage();
         }
 
-        function buildGallery() {
+        function renderPage() {
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
 
-            displayOrder.forEach(i => {
+            const start = (currentPage - 1) * PER_PAGE;
+            const end = Math.min(start + PER_PAGE, displayOrder.length);
+
+            for (let idx = start; idx < end; idx++) {
+                const i = displayOrder[idx];
                 const photo = trip.photos[i];
                 const ratio = trip.ratios[i] || 1.5;
 
@@ -271,9 +317,9 @@
                 img.onclick = () => openLightbox(i);
                 item.appendChild(img);
                 gallery.appendChild(item);
-            });
+            }
 
-            // Lazy load with IntersectionObserver
+            // Lazy load
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -292,6 +338,19 @@
             document.querySelectorAll('.gallery-item img[data-src]').forEach(img => {
                 observer.observe(img);
             });
+
+            // Update pagination
+            document.getElementById('page-info').textContent = `${currentPage} / ${totalPages}`;
+            document.getElementById('prev-btn').disabled = currentPage <= 1;
+            document.getElementById('next-btn').disabled = currentPage >= totalPages;
+        }
+
+        function changePage(dir) {
+            currentPage += dir;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function openLightbox(index) {
