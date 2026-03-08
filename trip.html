@@ -45,7 +45,7 @@
         .masonry {
             max-width: 1400px;
             margin: 30px auto 0;
-            padding: 0 20px;
+            padding: 0 20px 20px;
             display: flex;
             gap: 16px;
         }
@@ -62,38 +62,37 @@
             overflow: hidden;
             border-radius: 4px;
             line-height: 0;
+            background: #1a1a1a;
+            position: relative;
         }
 
         .gallery-item img {
             width: 100%;
             display: block;
-            transition: transform 0.4s ease, filter 0.4s ease;
             opacity: 0;
-            transition: transform 0.4s ease, filter 0.4s ease, opacity 0.5s ease;
+            transition: opacity 0.5s ease, transform 0.4s ease, filter 0.4s ease;
         }
 
         .gallery-item img.loaded {
             opacity: 1;
         }
 
-        .gallery-item:hover img {
+        .gallery-item:hover img.loaded {
             transform: scale(1.02);
             filter: brightness(1.1);
         }
 
-        .skeleton {
-            border-radius: 4px;
-            background: #1a1a1a;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .skeleton::after {
+        .gallery-item::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
             animation: shimmer 1.5s infinite;
+            pointer-events: none;
+        }
+
+        .gallery-item.done::after {
+            display: none;
         }
 
         @keyframes shimmer {
@@ -183,50 +182,51 @@
             'westworld': {
                 title: 'Westworld',
                 date: 'March 2024',
-                photos: ['DSC03728-4.jpg','DSC04816.jpg','DSC03454.jpg','DSC03487.jpg','DSC04097.jpg','DSC03820.jpg','DSC05292.jpg','DSC05490-2.jpg','DSC04848.jpg','DSC04696.jpg','DSC04879-2.jpg','DSC03621-2.jpg','DSC04854.jpg','DSC05090.jpg','DSC04772-2.jpg','DSC04916-2.jpg','DSC04647.jpg','DSC04448.jpg','DSC03909-2.jpg','DSC05416.jpg']
+                photos: ['DSC03728-4.jpg','DSC04816.jpg','DSC03454.jpg','DSC03487.jpg','DSC04097.jpg','DSC03820.jpg','DSC05292.jpg','DSC05490-2.jpg','DSC04848.jpg','DSC04696.jpg','DSC04879-2.jpg','DSC03621-2.jpg','DSC04854.jpg','DSC05090.jpg','DSC04772-2.jpg','DSC04916-2.jpg','DSC04647.jpg','DSC04448.jpg','DSC03909-2.jpg','DSC05416.jpg'],
+                ratios: [1.5,1.5,1.5,1.5,0.667,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,0.667]
             },
             'southwest-odyssey': {
                 title: 'Southwest Odyssey',
                 date: 'March 2025',
-                photos: ['DSC02710-2.jpg','DSC05914.jpg','DSC06831.jpg','DSC07753-3.jpg','DSC06673-2.jpg','DSC07707.jpg','DSC06808.jpg','DSC07356.jpg','DSC06349.jpg','DSC06798.jpg','DSC08109.jpg','DSC06696-2.jpg','DSC07394-Enhanced-NR.jpg','DSC06754-2.jpg','DSC06335.jpg','DSC07284.jpg','DSC06715.jpg','DSC07804.jpg','DSC07842.jpg','DSC05954.jpg','DSC07704.jpg','DSC06712.jpg','DSC06000-2.jpg','DSC07486-Enhanced-NR.jpg','DSC05883-2.jpg','DSC06888-2.jpg','DSC06027.jpg','DSC05949.jpg','DSC07266.jpg','DSC06804.jpg','DSC08121.jpg','DSC07877.jpg','DSC06061.jpg','DSC07159.jpg','DSC02568.jpg','DSC06642.jpg','DSC02532.jpg','DSC07194.jpg','DSC07728.jpg','DSC06023.jpg','DSC07895.jpg','DSC07609.jpg','DSC07312-2.jpg','DSC07098.jpg','DSC06653.jpg','DSC05980.jpg','DSC08000.jpg','DSC06364-2.jpg','DSC06090.jpg','DSC06687.jpg','DSC06625-2.jpg','DSC08224.jpg']
+                photos: ['DSC02710-2.jpg','DSC05914.jpg','DSC06831.jpg','DSC07753-3.jpg','DSC06673-2.jpg','DSC07707.jpg','DSC06808.jpg','DSC07356.jpg','DSC06349.jpg','DSC06798.jpg','DSC08109.jpg','DSC06696-2.jpg','DSC07394-Enhanced-NR.jpg','DSC06754-2.jpg','DSC06335.jpg','DSC07284.jpg','DSC06715.jpg','DSC07804.jpg','DSC07842.jpg','DSC05954.jpg','DSC07704.jpg','DSC06712.jpg','DSC06000-2.jpg','DSC07486-Enhanced-NR.jpg','DSC05883-2.jpg','DSC06888-2.jpg','DSC06027.jpg','DSC05949.jpg','DSC07266.jpg','DSC06804.jpg','DSC08121.jpg','DSC07877.jpg','DSC06061.jpg','DSC07159.jpg','DSC02568.jpg','DSC06642.jpg','DSC02532.jpg','DSC07194.jpg','DSC07728.jpg','DSC06023.jpg','DSC07895.jpg','DSC07609.jpg','DSC07312-2.jpg','DSC07098.jpg','DSC06653.jpg','DSC05980.jpg','DSC08000.jpg','DSC06364-2.jpg','DSC06090.jpg','DSC06687.jpg','DSC06625-2.jpg','DSC08224.jpg'],
+                ratios: [1.5,1.5,1.5,1.5,1.5,0.667,0.667,1.5,1.5,1.5,1.5,1.5,1.5,1.5,0.667,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,0.667,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,0.667,1.5,1.5,0.667,1.5,1.5,0.667,0.667,1.5,1.5,1.5]
             },
             'yellowstone-grand-teton': {
                 title: 'Yellowstone & Grand Teton',
                 date: 'May 2024',
-                photos: ['DSC07706-2.jpg','DSC09021.jpg','DSC08530-2.jpg','DSC09531.jpg','DSC08754.jpg','DSC09459.jpg','DSC00364.jpg','DSC07961.jpg','DSC00419.jpg','DSC09694-3.jpg']
+                photos: ['DSC07706-2.jpg','DSC09021.jpg','DSC08530-2.jpg','DSC09531.jpg','DSC08754.jpg','DSC09459.jpg','DSC00364.jpg','DSC07961.jpg','DSC00419.jpg','DSC09694-3.jpg'],
+                ratios: [1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5]
             },
             'isla-del-encanto': {
                 title: 'Isla del Encanto',
                 date: 'December 2024',
-                photos: ['DSC02506-2.jpg','DSC02656-Enhanced-NR.jpg','DSC02060.jpg','DSC03148.jpg','DSC02101.jpg','DSC02847.jpg','DSC02374.jpg','DSC03083.jpg','DSC02802.jpg','DSC02358.jpg','DSC02572.jpg','DSC03190.jpg','DSC02159.jpg','DSC03073.jpg','DSC02340.jpg','DSC02874-Enhanced-NR.jpg','DSC03271.jpg','DSC02330.jpg','DSC02122.jpg','DSC02177.jpg','DSC03077.jpg','DSC02221.jpg','DSC02191.jpg','DSC02935.jpg','DSC02217.jpg','DSC03321.jpg','DSC02478.jpg']
+                photos: ['DSC02506-2.jpg','DSC02656-Enhanced-NR.jpg','DSC02060.jpg','DSC03148.jpg','DSC02101.jpg','DSC02847.jpg','DSC02374.jpg','DSC03083.jpg','DSC02802.jpg','DSC02358.jpg','DSC02572.jpg','DSC03190.jpg','DSC02159.jpg','DSC03073.jpg','DSC02340.jpg','DSC02874-Enhanced-NR.jpg','DSC03271.jpg','DSC02330.jpg','DSC02122.jpg','DSC02177.jpg','DSC03077.jpg','DSC02221.jpg','DSC02191.jpg','DSC02935.jpg','DSC02217.jpg','DSC03321.jpg','DSC02478.jpg'],
+                ratios: [1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,0.667,0.667,1.5,1.5,1.5,1.5,0.667,1.5,1.5,0.667,1.5,0.667,1.5,1.5,0.667,1.5,1.5,1.5]
             },
             'pacific-to-desert': {
                 title: 'Pacific to Desert',
                 date: 'November 2024',
-                photos: ['DSC00240-Enhanced-NR.jpg','DSC09160.jpg','DSC09071.jpg','DSC09510-Enhanced-NR.jpg','DSC09230.jpg','DSC09787.jpg','DSC09481-Enhanced-NR.jpg','DSC00031-Enhanced-NR.jpg','DSC09577.jpg','DSC09761-Enhanced-NR.jpg','DSC09939-Enhanced-NR-2.jpg','DSC08974.jpg','DSC09705-Enhanced-NR.jpg','DSC01329.jpg','DSC00122-Enhanced-NR.jpg']
+                photos: ['DSC00240-Enhanced-NR.jpg','DSC09160.jpg','DSC09071.jpg','DSC09510-Enhanced-NR.jpg','DSC09230.jpg','DSC09787.jpg','DSC09481-Enhanced-NR.jpg','DSC00031-Enhanced-NR.jpg','DSC09577.jpg','DSC09761-Enhanced-NR.jpg','DSC09939-Enhanced-NR-2.jpg','DSC08974.jpg','DSC09705-Enhanced-NR.jpg','DSC01329.jpg','DSC00122-Enhanced-NR.jpg'],
+                ratios: [1.5,1.5,1.419,0.667,1.5,1.5,1.5,1.5,0.667,1.5,0.667,1.5,0.667,1.542,1.5]
             },
             'all-the-way-south': {
                 title: 'All the Way South',
                 date: 'August 2024',
-                photos: ['DSC04367.jpg','DSC06467-Enhanced-NR.jpg','DSC04263.jpg','DSC05916-2.jpg','DSC05809.jpg','DSC05183.jpg','DSC05880.jpg','DSC04431.jpg','DSC03809.jpg','DSC04859.jpg','DSC04372.jpg','DSC04884.jpg']
+                photos: ['DSC04367.jpg','DSC06467-Enhanced-NR.jpg','DSC04263.jpg','DSC05916-2.jpg','DSC05809.jpg','DSC05183.jpg','DSC05880.jpg','DSC04431.jpg','DSC03809.jpg','DSC04859.jpg','DSC04372.jpg','DSC04884.jpg'],
+                ratios: [1.438,1.5,1.5,1.5,1.5,1.5,1.514,1.516,1.5,1.5,0.667,1.5]
             },
             'nyc-october': {
                 title: 'Shadows of Gotham',
                 date: 'October 2025',
-                photos: ['DSC09364.jpg','DSC09322.jpg','DSC09361.jpg','DSC08779.jpg','DSC09366.jpg','DSC08788.jpg','DSC09373.jpg','DSC09620.jpg','DSC09622-2.jpg','DSC08834.jpg','DSC08756.jpg','DSC09331.jpg','DSC09387.jpg']
+                photos: ['DSC09364.jpg','DSC09322.jpg','DSC09361.jpg','DSC08779.jpg','DSC09366.jpg','DSC08788.jpg','DSC09373.jpg','DSC09620.jpg','DSC09622-2.jpg','DSC08834.jpg','DSC08756.jpg','DSC09331.jpg','DSC09387.jpg'],
+                ratios: [1.5,1.5,1.5,1.5,1.5,1.5,0.667,1.5,1.5,1.5,0.667,1.5,1.5]
             }
         };
 
         const params = new URLSearchParams(window.location.search);
         const tripId = params.get('id');
         const trip = trips[tripId];
-
-        const BATCH_SIZE = 6;
         let currentIndex = 0;
-        let loadedCount = 0;
-        let allImgData = [];
-        let isLoading = false;
-        let observer;
 
         function getColCount() {
             if (window.innerWidth >= 1200) return 3;
@@ -244,54 +244,16 @@
             document.getElementById('trip-title').textContent = trip.title;
             document.getElementById('trip-info').textContent = `${trip.date} · ${trip.photos.length} photos`;
 
-            // Preload all image dimensions, then build masonry
-            allImgData = trip.photos.map((photo, i) => ({
-                photo,
-                index: i,
-                width: 3,
-                height: 2,
-                loaded: false
-            }));
-
-            // Load first batch dimensions, then render
-            loadDimensionsBatch(0, Math.min(BATCH_SIZE, trip.photos.length), () => {
-                buildFullMasonry();
-                setupScrollObserver();
-            });
+            buildMasonry();
 
             let resizeTimer;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(() => buildFullMasonry(), 200);
+                resizeTimer = setTimeout(buildMasonry, 200);
             });
         }
 
-        function loadDimensionsBatch(start, end, callback) {
-            if (start >= trip.photos.length) {
-                if (callback) callback();
-                return;
-            }
-            let pending = end - start;
-            for (let i = start; i < end; i++) {
-                const img = new Image();
-                const idx = i;
-                img.onload = () => {
-                    allImgData[idx].width = img.naturalWidth;
-                    allImgData[idx].height = img.naturalHeight;
-                    allImgData[idx].loaded = true;
-                    pending--;
-                    if (pending === 0 && callback) callback();
-                };
-                img.onerror = () => {
-                    allImgData[idx].loaded = true;
-                    pending--;
-                    if (pending === 0 && callback) callback();
-                };
-                img.src = `${R2_BASE}/${tripId}/${trip.photos[i]}`;
-            }
-        }
-
-        function buildFullMasonry() {
+        function buildMasonry() {
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
 
@@ -306,93 +268,49 @@
                 gallery.appendChild(col);
             }
 
-            allImgData.forEach(data => {
+            trip.photos.forEach((photo, i) => {
+                const ratio = trip.ratios[i] || 1.5;
+
                 // Find shortest column
                 let minCol = 0;
                 for (let c = 1; c < colCount; c++) {
                     if (colHeights[c] < colHeights[minCol]) minCol = c;
                 }
 
-                const ratio = data.height / data.width;
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.style.aspectRatio = ratio;
 
-                if (data.loaded) {
-                    const item = document.createElement('div');
-                    item.className = 'gallery-item';
-                    item.dataset.index = data.index;
-                    const img = document.createElement('img');
-                    img.dataset.src = `${R2_BASE}/${tripId}/${data.photo}`;
-                    img.alt = data.photo;
-                    img.style.aspectRatio = `${data.width} / ${data.height}`;
-                    img.onclick = () => openLightbox(data.index);
-                    item.appendChild(img);
-                    cols[minCol].appendChild(item);
-                } else {
-                    // Skeleton placeholder for not-yet-loaded dimensions
-                    const skel = document.createElement('div');
-                    skel.className = 'skeleton';
-                    skel.style.width = '100%';
-                    skel.style.paddingBottom = (ratio * 100) + '%';
-                    cols[minCol].appendChild(skel);
-                }
+                const img = document.createElement('img');
+                img.dataset.src = `${R2_BASE}/${tripId}/${photo}`;
+                img.alt = photo;
+                img.style.aspectRatio = ratio;
+                img.onclick = () => openLightbox(i);
+                item.appendChild(img);
+                cols[minCol].appendChild(item);
 
-                colHeights[minCol] += ratio;
+                colHeights[minCol] += 1 / ratio;
             });
 
-            // Observe all images for lazy loading
-            setupLazyLoad();
-        }
-
-        function setupLazyLoad() {
-            const imgObserver = new IntersectionObserver((entries) => {
+            // Lazy load with IntersectionObserver
+            const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.removeAttribute('data-src');
-                            img.onload = () => img.classList.add('loaded');
-                        }
-                        imgObserver.unobserve(img);
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        img.onload = () => {
+                            img.classList.add('loaded');
+                            img.parentElement.classList.add('done');
+                        };
+                        observer.unobserve(img);
                     }
                 });
-            }, { rootMargin: '400px' });
+            }, { rootMargin: '600px' });
 
             document.querySelectorAll('.gallery-item img[data-src]').forEach(img => {
-                imgObserver.observe(img);
+                observer.observe(img);
             });
-        }
-
-        function setupScrollObserver() {
-            // Load remaining image dimensions in batches as user scrolls
-            let nextBatch = BATCH_SIZE;
-
-            const scrollHandler = () => {
-                if (isLoading || nextBatch >= trip.photos.length) return;
-
-                const scrollBottom = window.innerHeight + window.scrollY;
-                const docHeight = document.documentElement.scrollHeight;
-
-                if (scrollBottom > docHeight - 800) {
-                    isLoading = true;
-                    const end = Math.min(nextBatch + BATCH_SIZE, trip.photos.length);
-                    loadDimensionsBatch(nextBatch, end, () => {
-                        nextBatch = end;
-                        isLoading = false;
-                        buildFullMasonry();
-                        if (nextBatch >= trip.photos.length) {
-                            window.removeEventListener('scroll', scrollHandler);
-                        }
-                    });
-                }
-            };
-
-            // Load all remaining dimensions immediately in background
-            // (they're just HEAD requests for dimensions, the actual images lazy-load via IntersectionObserver)
-            if (BATCH_SIZE < trip.photos.length) {
-                loadDimensionsBatch(BATCH_SIZE, trip.photos.length, () => {
-                    buildFullMasonry();
-                });
-            }
         }
 
         function openLightbox(index) {
