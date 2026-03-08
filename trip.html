@@ -50,19 +50,13 @@
             color: #888;
         }
 
-        .masonry {
-            max-width: 1400px;
+        .gallery {
+            max-width: 800px;
             margin: 30px auto 0;
             padding: 0 20px 20px;
             display: flex;
-            gap: 16px;
-        }
-
-        .masonry-col {
-            flex: 1;
-            display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 24px;
         }
 
         .gallery-item {
@@ -72,12 +66,6 @@
             line-height: 0;
             background: #1a1a1a;
             position: relative;
-        }
-
-        .gallery-item.portrait {
-            width: 65%;
-            margin: 0 auto;
-            background: none;
         }
 
         .gallery-item img {
@@ -178,7 +166,7 @@
         <p id="trip-info"></p>
     </header>
 
-    <div class="masonry" id="gallery"></div>
+    <div class="gallery" id="gallery"></div>
 
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
@@ -241,12 +229,7 @@
         const tripId = params.get('id');
         const trip = trips[tripId];
         let currentIndex = 0;
-
-        function getColCount() {
-            if (window.innerWidth >= 1200) return 3;
-            if (window.innerWidth >= 768) return 2;
-            return 1;
-        }
+        let displayOrder = [];
 
         function init() {
             if (!trip) {
@@ -258,51 +241,27 @@
             document.getElementById('trip-title').textContent = trip.title;
             document.getElementById('trip-info').textContent = `${trip.date} · ${trip.photos.length} photos`;
 
-            buildMasonry();
+            // Shuffle order (cover stays first)
+            displayOrder = [0];
+            for (let i = 1; i < trip.photos.length; i++) displayOrder.push(i);
+            for (let i = displayOrder.length - 1; i > 1; i--) {
+                const j = 1 + Math.floor(Math.random() * i);
+                [displayOrder[i], displayOrder[j]] = [displayOrder[j], displayOrder[i]];
+            }
 
-            let resizeTimer;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(buildMasonry, 200);
-            });
+            buildGallery();
         }
 
-        function buildMasonry() {
+        function buildGallery() {
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
 
-            const colCount = getColCount();
-            const cols = [];
-            const colHeights = [];
-            for (let c = 0; c < colCount; c++) {
-                const col = document.createElement('div');
-                col.className = 'masonry-col';
-                cols.push(col);
-                colHeights.push(0);
-                gallery.appendChild(col);
-            }
-
-            // Build shuffled index order (cover stays first)
-            const order = [0];
-            for (let i = 1; i < trip.photos.length; i++) order.push(i);
-            for (let i = order.length - 1; i > 1; i--) {
-                const j = 1 + Math.floor(Math.random() * i);
-                [order[i], order[j]] = [order[j], order[i]];
-            }
-
-            order.forEach(i => {
+            displayOrder.forEach(i => {
                 const photo = trip.photos[i];
                 const ratio = trip.ratios[i] || 1.5;
 
-                // Find shortest column
-                let minCol = 0;
-                for (let c = 1; c < colCount; c++) {
-                    if (colHeights[c] < colHeights[minCol]) minCol = c;
-                }
-
-                const isPortrait = ratio < 1;
                 const item = document.createElement('div');
-                item.className = 'gallery-item' + (isPortrait ? ' portrait' : '');
+                item.className = 'gallery-item';
                 item.style.aspectRatio = ratio;
 
                 const img = document.createElement('img');
@@ -311,9 +270,7 @@
                 img.style.aspectRatio = ratio;
                 img.onclick = () => openLightbox(i);
                 item.appendChild(img);
-                cols[minCol].appendChild(item);
-
-                colHeights[minCol] += isPortrait ? (1 / ratio) * 0.65 : (1 / ratio);
+                gallery.appendChild(item);
             });
 
             // Lazy load with IntersectionObserver
