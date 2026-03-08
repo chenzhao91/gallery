@@ -201,6 +201,25 @@
         .pagination .page-num.active { color: #fff; border-color: #666; background: #2a2a2a; }
         .pagination .page-num:disabled { opacity: 1; cursor: default; }
 
+        .pagination .page-input {
+            width: 40px;
+            height: 32px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #ccc;
+            font-size: 0.85rem;
+            text-align: center;
+            border-radius: 4px;
+            outline: none;
+            margin-left: 8px;
+            -moz-appearance: textfield;
+        }
+
+        .pagination .page-input::-webkit-outer-spin-button,
+        .pagination .page-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+        .pagination .page-input:focus { border-color: #666; }
+
         footer {
             text-align: center;
             padding: 60px 20px;
@@ -221,6 +240,7 @@
     <div class="pagination" id="pagination">
         <button onclick="changePage(-1)" id="prev-btn">&lsaquo;</button>
         <div class="page-nums" id="page-nums"></div>
+        <input type="number" class="page-input" id="page-input" min="1" placeholder="#" onkeydown="if(event.key==='Enter')goToPage(parseInt(this.value)||1)">
         <button onclick="changePage(1)" id="next-btn">&rsaquo;</button>
     </div>
 
@@ -370,6 +390,11 @@
                 btn.onclick = () => goToPage(p);
                 pageNums.appendChild(btn);
             }
+
+            const input = document.getElementById('page-input');
+            input.max = totalPages;
+            input.value = '';
+            input.placeholder = currentPage + '/' + totalPages;
         }
 
         function changePage(dir) {
