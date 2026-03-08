@@ -42,28 +42,26 @@
             color: #888;
         }
 
-        .gallery {
+        .masonry {
             max-width: 1400px;
             margin: 30px auto 0;
-            padding: 20px;
-            columns: 1;
-            column-gap: 16px;
+            padding: 0 20px;
+            display: flex;
+            gap: 16px;
         }
 
-        @media (min-width: 768px) {
-            .gallery { columns: 2; }
-        }
-
-        @media (min-width: 1200px) {
-            .gallery { columns: 3; }
+        .masonry-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .gallery-item {
-            break-inside: avoid;
-            margin-bottom: 16px;
             cursor: pointer;
             overflow: hidden;
             border-radius: 4px;
+            line-height: 0;
         }
 
         .gallery-item img {
@@ -75,6 +73,26 @@
         .gallery-item:hover img {
             transform: scale(1.02);
             filter: brightness(1.1);
+        }
+
+        .skeleton {
+            border-radius: 4px;
+            background: #1a1a1a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skeleton::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .lightbox {
@@ -162,7 +180,7 @@
         <p id="trip-info"></p>
     </header>
 
-    <div class="gallery" id="gallery"></div>
+    <div class="masonry" id="gallery"></div>
 
     <div class="pagination" id="pagination"></div>
 
@@ -224,6 +242,12 @@
         let currentIndex = 0;
         let currentPage = 1;
 
+        function getColCount() {
+            if (window.innerWidth >= 1200) return 3;
+            if (window.innerWidth >= 768) return 2;
+            return 1;
+        }
+
         function init() {
             if (!trip) {
                 document.body.innerHTML = '<p style="text-align:center;padding:100px;color:#888">Trip not found.</p>';
@@ -238,6 +262,12 @@
             currentPage = pageParam;
             renderPage(currentPage);
             renderPagination();
+
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => renderPage(currentPage), 200);
+            });
         }
 
         function renderPage(page) {
@@ -247,19 +277,79 @@
             const end = Math.min(start + PER_PAGE, trip.photos.length);
             const pagePhotos = trip.photos.slice(start, end);
 
+            const colCount = getColCount();
+            const cols = [];
+            const colHeights = [];
+            for (let c = 0; c < colCount; c++) {
+                const col = document.createElement('div');
+                col.className = 'masonry-col';
+                cols.push(col);
+                colHeights.push(0);
+                gallery.appendChild(col);
+            }
+
+            // Show skeleton placeholders first
+            const skeletons = [];
+            pagePhotos.forEach((_, i) => {
+                const targetCol = i % colCount;
+                const skel = document.createElement('div');
+                skel.className = 'skeleton';
+                // Guess aspect ratio: default 3:2 landscape
+                skel.style.width = '100%';
+                skel.style.paddingBottom = '66.67%';
+                cols[targetCol].appendChild(skel);
+                skeletons.push({ el: skel, col: targetCol });
+            });
+
+            // Load images, get real dimensions, then reflow into masonry
+            let loaded = 0;
+            const imgData = [];
+
             pagePhotos.forEach((photo, i) => {
+                const img = new Image();
+                img.src = `${R2_BASE}/${tripId}/${photo}`;
+                img.onload = () => {
+                    imgData[i] = { photo, width: img.naturalWidth, height: img.naturalHeight, globalIndex: start + i };
+                    loaded++;
+                    // Replace this skeleton immediately
+                    const ratio = img.naturalHeight / img.naturalWidth * 100;
+                    skeletons[i].el.style.paddingBottom = ratio + '%';
+                    if (loaded === pagePhotos.length) buildMasonry(imgData, cols, colCount);
+                };
+                img.onerror = () => {
+                    imgData[i] = { photo, width: 3, height: 2, globalIndex: start + i };
+                    loaded++;
+                    if (loaded === pagePhotos.length) buildMasonry(imgData, cols, colCount);
+                };
+            });
+
+            if (pagePhotos.length === 0) return;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function buildMasonry(imgData, cols, colCount) {
+            // Clear columns
+            cols.forEach(col => col.innerHTML = '');
+            const colHeights = new Array(colCount).fill(0);
+
+            imgData.forEach(data => {
+                // Find shortest column
+                let minCol = 0;
+                for (let c = 1; c < colCount; c++) {
+                    if (colHeights[c] < colHeights[minCol]) minCol = c;
+                }
+
                 const item = document.createElement('div');
                 item.className = 'gallery-item';
                 const img = document.createElement('img');
-                img.src = `${R2_BASE}/${tripId}/${photo}`;
-                img.alt = photo;
-                img.loading = 'lazy';
-                img.onclick = () => openLightbox(start + i);
+                img.src = `${R2_BASE}/${tripId}/${data.photo}`;
+                img.alt = data.photo;
+                img.onclick = () => openLightbox(data.globalIndex);
                 item.appendChild(img);
-                gallery.appendChild(item);
-            });
+                cols[minCol].appendChild(item);
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+                colHeights[minCol] += data.height / data.width;
+            });
         }
 
         function renderPagination() {
