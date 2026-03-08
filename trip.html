@@ -253,6 +253,46 @@
             });
         }
 
+        function optimizeOrder(photos, ratios, colCount) {
+            // Keep cover (index 0) first, optimize the rest for balanced columns
+            if (photos.length <= 1 || colCount <= 1) return photos.map((p, i) => i);
+
+            const rest = [];
+            for (let i = 1; i < photos.length; i++) {
+                rest.push({ idx: i, h: 1 / (ratios[i] || 1.5) });
+            }
+
+            // Sort by height descending (tall portraits first) for better bin packing
+            rest.sort((a, b) => b.h - a.h);
+
+            // Greedy: assign each photo to shortest column, track assignment
+            const colHeights = new Array(colCount).fill(0);
+            const colItems = Array.from({ length: colCount }, () => []);
+
+            // Place cover in col 0
+            colHeights[0] = 1 / (ratios[0] || 1.5);
+            colItems[0].push(0);
+
+            rest.forEach(item => {
+                let minCol = 0;
+                for (let c = 1; c < colCount; c++) {
+                    if (colHeights[c] < colHeights[minCol]) minCol = c;
+                }
+                colHeights[minCol] += item.h;
+                colItems[minCol].push(item.idx);
+            });
+
+            // Interleave columns: pick from each column round-robin
+            const order = [];
+            const maxLen = Math.max(...colItems.map(c => c.length));
+            for (let row = 0; row < maxLen; row++) {
+                for (let c = 0; c < colCount; c++) {
+                    if (row < colItems[c].length) order.push(colItems[c][row]);
+                }
+            }
+            return order;
+        }
+
         function buildMasonry() {
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
@@ -268,7 +308,10 @@
                 gallery.appendChild(col);
             }
 
-            trip.photos.forEach((photo, i) => {
+            const order = optimizeOrder(trip.photos, trip.ratios, colCount);
+
+            order.forEach(i => {
+                const photo = trip.photos[i];
                 const ratio = trip.ratios[i] || 1.5;
 
                 // Find shortest column
