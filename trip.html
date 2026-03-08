@@ -269,8 +269,11 @@
                 rest.push({ idx: i, h: r < 1 ? (1 / r) * 0.65 : (1 / r) });
             }
 
-            // Sort by height descending (tall portraits first) for better bin packing
-            rest.sort((a, b) => b.h - a.h);
+            // Shuffle rest randomly for natural feel
+            for (let i = rest.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [rest[i], rest[j]] = [rest[j], rest[i]];
+            }
 
             // Greedy: assign each photo to shortest column, track assignment
             const colHeights = new Array(colCount).fill(0);
