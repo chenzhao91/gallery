@@ -175,13 +175,31 @@
         .pagination button:disabled { opacity: 0.3; cursor: default; }
         .pagination button:disabled:hover { background: #1a1a1a; color: #aaa; border-color: #333; }
 
-        .pagination .page-info {
-            color: #666;
-            font-size: 0.8rem;
-            letter-spacing: 0.05em;
-            min-width: 80px;
-            text-align: center;
+        .pagination .page-nums {
+            display: flex;
+            gap: 4px;
+            align-items: center;
         }
+
+        .pagination .page-num {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: 1px solid transparent;
+            color: #666;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .pagination .page-num:hover { color: #fff; border-color: #555; }
+        .pagination .page-num.active { color: #fff; border-color: #666; background: #2a2a2a; }
+        .pagination .page-num:disabled { opacity: 1; cursor: default; }
 
         footer {
             text-align: center;
@@ -201,9 +219,9 @@
     <div class="gallery" id="gallery"></div>
 
     <div class="pagination" id="pagination">
-        <button onclick="changePage(-1)" id="prev-btn">&lsaquo; Prev</button>
-        <span class="page-info" id="page-info"></span>
-        <button onclick="changePage(1)" id="next-btn">Next &rsaquo;</button>
+        <button onclick="changePage(-1)" id="prev-btn">&lsaquo;</button>
+        <div class="page-nums" id="page-nums"></div>
+        <button onclick="changePage(1)" id="next-btn">&rsaquo;</button>
     </div>
 
     <div class="lightbox" id="lightbox">
@@ -340,15 +358,26 @@
             });
 
             // Update pagination
-            document.getElementById('page-info').textContent = `${currentPage} / ${totalPages}`;
             document.getElementById('prev-btn').disabled = currentPage <= 1;
             document.getElementById('next-btn').disabled = currentPage >= totalPages;
+
+            const pageNums = document.getElementById('page-nums');
+            pageNums.innerHTML = '';
+            for (let p = 1; p <= totalPages; p++) {
+                const btn = document.createElement('button');
+                btn.className = 'page-num' + (p === currentPage ? ' active' : '');
+                btn.textContent = p;
+                btn.onclick = () => goToPage(p);
+                pageNums.appendChild(btn);
+            }
         }
 
         function changePage(dir) {
-            currentPage += dir;
-            if (currentPage < 1) currentPage = 1;
-            if (currentPage > totalPages) currentPage = totalPages;
+            goToPage(currentPage + dir);
+        }
+
+        function goToPage(page) {
+            currentPage = Math.max(1, Math.min(page, totalPages));
             renderPage();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
