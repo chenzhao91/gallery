@@ -132,6 +132,8 @@
             font-weight: 300;
             letter-spacing: 0.1em;
             color: #fff;
+            flex-shrink: 1;
+            min-width: 0;
         }
 
         .trip-card .overlay span {
@@ -139,10 +141,23 @@
             color: #bbb;
             letter-spacing: 0.05em;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         @media (max-width: 560px) {
             header h1 { font-size: 1.6rem; letter-spacing: 0.2em; }
+            .trip-card .overlay {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+                padding: 40px 16px 16px;
+            }
+            .trip-card .overlay h2 {
+                font-size: 1.2rem;
+            }
+            .trip-card .overlay span {
+                align-self: flex-end;
+            }
         }
 
         footer {
